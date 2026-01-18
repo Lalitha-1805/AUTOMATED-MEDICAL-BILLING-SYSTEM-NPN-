@@ -51,6 +51,3 @@ A complete **AI/ML-powered web application** for automated medical billing valid
 - **Flask-Session** - Session management
 - **Werkzeug** - Security utilities
 - **Pillow** - Image processing
-
----
-
