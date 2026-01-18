@@ -1,0 +1,541 @@
+{% extends 'base.html' %}
+
+{% block title %}Landing Page - Medical Billing Validation{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Badge -->
+<div class="mb-6 pt-2">
+    <div class="text-center mb-4">
+        <span class="badge fw-600 px-3 py-2" style="font-size: 0.85rem; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #0369a1;">
+            <i class="bi bi-star-fill me-1" style="color: #0369a1;"></i>AI-Powered Healthcare Billing
+        </span>
+    </div>
+</div>
+
+<!-- Hero Section -->
+<div class="hero-section mb-6 py-6">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 position-relative z-2">
+                <h1 class="display-3 fw-bold mb-4" style="color: white; line-height: 1.2; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+                    Automated Medical Billing <br><span style="color: #bfdbfe;">Validation System</span>
+                </h1>
+                <p class="lead mb-5" style="color: rgba(255,255,255,0.98); font-size: 1.1rem; line-height: 1.6; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    Reduce billing errors, detect fraud, and streamline claims processing with our advanced AI validation platform trusted by leading healthcare providers.
+                </p>
+                <div class="d-flex gap-3 mb-5 flex-wrap">
+                    <a href="/signup" class="btn btn-light btn-lg fw-700" style="color: #0369a1; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        <i class="bi bi-play-circle me-2"></i>Start Validating
+                    </a>
+                    <a href="/login" class="btn btn-outline-light btn-lg fw-600" style="border: 2px solid white; color: white;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- Stats Cards -->
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); backdrop-filter: blur(10px);">
+                            <div class="card-body text-center p-4">
+                                <h3 class="fw-800 mb-1 text-dark" style="font-size: 2.2rem;">{{ stats.accuracy_rate }}%</h3>
+                                <p class="text-muted small fw-700 mb-0">Accuracy Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); backdrop-filter: blur(10px);">
+                            <div class="card-body text-center p-4">
+                                <h3 class="fw-800 mb-1" style="color: #10b981; font-size: 2.2rem;">{{ stats.total_claims }}</h3>
+                                <p class="text-muted small fw-700 mb-0">Claims Processed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #ffffff 0%, #fef9c3 100%); backdrop-filter: blur(10px);">
+                            <div class="card-body text-center p-4">
+                                <h3 class="fw-800 mb-1" style="color: #d97706; font-size: 2.2rem;">{{ stats.processing_time }}s</h3>
+                                <p class="text-muted small fw-700 mb-0">Processing Time</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card border-0 shadow-lg h-100" style="background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%); backdrop-filter: blur(10px);">
+                            <div class="card-body text-center p-4">
+                                <h3 class="fw-800 mb-1" style="color: #dc2626; font-size: 2.2rem;">{% if stats.fraud_amount >= 1000000 %}${{ (stats.fraud_amount / 1000000)|round(1) }}M{% elif stats.fraud_amount >= 1000 %}${{ (stats.fraud_amount / 1000)|round(1) }}K{% else %}${{ stats.fraud_amount|int }}{% endif %}</h3>
+                                <p class="text-muted small fw-700 mb-0">Fraud Detected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Why Choose MediBill Section -->
+<div class="py-6" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-800 mb-3 text-dark">Why Choose MediBill?</h2>
+            <p class="lead text-muted fw-500">Our comprehensive validation platform combines cutting-edge AI with healthcare expertise.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6 col-md-6">
+                <div class="card border-0 shadow h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); border-left: 4px solid #0ea5e9;">
+                    <div class="card-body p-5">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <i class="bi bi-lightning-fill" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <h5 class="fw-800 mb-3 text-dark">Instant Validation</h5>
+                        <p class="text-muted fw-500 mb-0">Process medical bills in seconds with our AI-powered OCR and NLP pipeline. Get instant results without delays.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="card border-0 shadow h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #fef9c3 100%); border-left: 4px solid #f59e0b;">
+                    <div class="card-body p-5">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <i class="bi bi-shield-check" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <h5 class="fw-800 mb-3 text-dark">Smart Fraud Detection</h5>
+                        <p class="text-muted fw-500 mb-0">Machine learning algorithms identify anomalies and potential fraud patterns with 99%+ accuracy.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="card border-0 shadow h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border-left: 4px solid #10b981;">
+                    <div class="card-body p-5">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <i class="bi bi-file-check" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <h5 class="fw-800 mb-3 text-dark">Explainable Results</h5>
+                        <p class="text-muted fw-500 mb-0">Clear, human-readable explanations for every validation decision. Understand why claims are approved or flagged.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="card border-0 shadow h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%); border-left: 4px solid #ef4444;">
+                    <div class="card-body p-5">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                            <i class="bi bi-shield-lock" style="font-size: 1.5rem; color: white;"></i>
+                        </div>
+                        <h5 class="fw-800 mb-3 text-dark">HIPAA Compliant</h5>
+                        <p class="text-muted fw-500 mb-0">Enterprise-grade security ensuring patient data privacy and full compliance with regulations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div class="py-6">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-700 mb-4">Clear, Actionable Results</h2>
+                <p class="lead text-muted mb-4">Every claim receives a detailed validation report with explainable decisions, fraud risk scores, and recommended actions.</p>
+                
+                <div class="mb-4">
+                    <div class="d-flex mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="fw-700 mb-1">Instant Approval</h6>
+                            <p class="text-muted small mb-0">Valid claims are automatically approved with confidence scores</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex mb-3">
+                        <i class="bi bi-exclamation-triangle-fill text-warning me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="fw-700 mb-1">Manual Review Queue</h6>
+                            <p class="text-muted small mb-0">Suspicious claims flagged for human review with specific concerns</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="d-flex mb-3">
+                        <i class="bi bi-clock-history text-info me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="fw-700 mb-1">Real-time Processing</h6>
+                            <p class="text-muted small mb-0">Get results in under 3 seconds for most claims</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg h-100">
+                    <div class="card-body p-5">
+                        <div class="mb-4 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-600 small text-muted">Claim ID</span>
+                                <span class="badge bg-success">Approved</span>
+                            </div>
+                            <h5 class="fw-700 mb-0">CLM-2026-001234</h5>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p class="text-muted small fw-600 mb-1">Patient</p>
+                                <p class="fw-700 mb-0">John Smith</p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="text-muted small fw-600 mb-1">Amount</p>
+                                <p class="fw-700 mb-0" style="color: #10b981;">$2,450.00</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p class="text-muted small fw-600 mb-1">Diagnosis (ICD-10)</p>
+                                <p class="fw-700 mb-0">J18.9 - Pneumonia</p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="text-muted small fw-600 mb-1">Procedure (CPT)</p>
+                                <p class="fw-700 mb-0">99213 - Office Visit</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 pb-4 border-bottom">
+                            <p class="text-muted small fw-600 mb-2">Fraud Risk Score</p>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar" style="width: 8%; background: linear-gradient(90deg, #10b981 0%, #06b6d4 100%);"></div>
+                                </div>
+                                <span class="fw-700 small text-success ms-3">8%</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-muted small fw-600 mb-3">Validation Summary</p>
+                            <ul class="small list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>Valid diagnosis-procedure combination</span>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>Amount within coverage limits</span>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>No duplicate claims detected</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>Provider credentials verified</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="py-6 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-700 mb-3">How It Works</h2>
+            <p class="lead text-muted">From upload to decision in seconds with our streamlined validation pipeline.</p>
+        </div>
+
+        <div class="row g-4 mb-6">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm text-center h-100" style="background: white;">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-cloud-upload" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-700 mb-2">Step 1: Upload</h6>
+                        <p class="text-muted small mb-0">Submit PDF bills or enter claim details manually</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm text-center h-100" style="background: white;">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-gear" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-700 mb-2">Step 2: Analysis</h6>
+                        <p class="text-muted small mb-0">AI models analyze the claim data</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm text-center h-100" style="background: white;">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-shield-check" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-700 mb-2">Step 3: Validation</h6>
+                        <p class="text-muted small mb-0">Rule engine and fraud detection runs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm text-center h-100" style="background: white;">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-check-circle" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-700 mb-2">Step 4: Decision</h6>
+                        <p class="text-muted small mb-0">Instant approval or review queue status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="hero-section py-6">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="display-5 fw-700 mb-3" style="color: white;">Ready to Streamline Your Billing?</h2>
+            <p class="lead" style="color: rgba(255,255,255,0.95); margin-bottom: 2rem;">Join thousands of healthcare providers who trust MediBill for accurate, fast, and fraud-free billing validation.</p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/signup" class="btn btn-light btn-lg fw-600">
+                    <i class="bi bi-play-circle me-2"></i>Get Started Free
+                </a>
+                <a href="#" class="btn btn-outline-light btn-lg fw-600">
+                    <i class="bi bi-calendar-check me-2"></i>Schedule Demo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.transition-all:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.py-6 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.mb-6 {
+    margin-bottom: 4rem;
+}
+                                </div>
+                                <div>
+                                    <strong class="d-block mb-1">Advanced Fraud Detection</strong>
+                                    <p class="text-muted small mb-0">Isolation Forest anomaly detection algorithms</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-4">
+                            <div class="d-flex">
+                                <div style="color: #10b981; margin-right: 12px;">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div>
+                                    <strong class="d-block mb-1">Compliance Engine</strong>
+                                    <p class="text-muted small mb-0">Comprehensive healthcare compliance rules</p>
+                            <div class="d-flex mb-3">
+                        <i class="bi bi-clock-history text-info me-3" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="fw-700 mb-1">Real-time Processing</h6>
+                            <p class="text-muted small mb-0">Get results in under 3 seconds for most claims</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg h-100">
+                    <div class="card-body p-5">
+                        <div class="mb-4 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-600 small text-muted">Claim ID</span>
+                                <span class="badge bg-success">Approved</span>
+                            </div>
+                            <h5 class="fw-700 mb-0">CLM-2026-001234</h5>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p class="text-muted small fw-600 mb-1">Patient</p>
+                                <p class="fw-700 mb-0">John Smith</p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="text-muted small fw-600 mb-1">Amount</p>
+                                <p class="fw-700 mb-0" style="color: #10b981;">$2,450.00</p>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <p class="text-muted small fw-600 mb-1">Diagnosis (ICD-10)</p>
+                                <p class="fw-700 mb-0">J18.9 - Pneumonia</p>
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="text-muted small fw-600 mb-1">Procedure (CPT)</p>
+                                <p class="fw-700 mb-0">99213 - Office Visit</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 pb-4 border-bottom">
+                            <p class="text-muted small fw-600 mb-2">Fraud Risk Score</p>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar" style="width: 8%; background: linear-gradient(90deg, #10b981 0%, #06b6d4 100%);"></div>
+                                </div>
+                                <span class="fw-700 small text-success ms-3">8%</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-muted small fw-600 mb-3">Validation Summary</p>
+                            <ul class="small list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>Valid diagnosis-procedure combination</span>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>Amount within coverage limits</span>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>No duplicate claims detected</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <span>Provider credentials verified</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="py-6" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-800 mb-3 text-dark">How It Works</h2>
+            <p class="lead text-muted fw-500">From upload to decision in seconds with our streamlined validation pipeline.</p>
+        </div>
+
+        <div class="row g-4 mb-6">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-cloud-upload" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-800 mb-2 text-dark">Step 1: Upload</h6>
+                        <p class="text-muted small fw-500 mb-0">Submit PDF bills or enter claim details manually</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #fef9c3 100%);">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-gear" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-800 mb-2 text-dark">Step 2: Analysis</h6>
+                        <p class="text-muted small fw-500 mb-0">AI models analyze the claim data</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-shield-check" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-800 mb-2 text-dark">Step 3: Validation</h6>
+                        <p class="text-muted small fw-500 mb-0">Rule engine and fraud detection runs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center h-100 transition-all" style="background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%);">
+                    <div class="card-body p-4">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                            <i class="bi bi-check-circle" style="font-size: 1.75rem; color: white;"></i>
+                        </div>
+                        <h6 class="fw-800 mb-2 text-dark">Step 4: Decision</h6>
+                        <p class="text-muted small fw-500 mb-0">Instant approval or review queue status</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="hero-section py-6">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="display-5 fw-800 mb-3" style="color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">Ready to Streamline Your Billing?</h2>
+            <p class="lead fw-600" style="color: rgba(255,255,255,0.98); margin-bottom: 2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">Join thousands of healthcare providers who trust MediBill for accurate, fast, and fraud-free billing validation.</p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="/signup" class="btn btn-light btn-lg fw-700" style="color: #0369a1; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <i class="bi bi-play-circle me-2"></i>Get Started Free
+                </a>
+                <a href="#" class="btn btn-outline-light btn-lg fw-600" style="border: 2px solid white; color: white;">
+                    <i class="bi bi-calendar-check me-2"></i>Schedule Demo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.transition-all:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.py-6 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+.mb-6 {
+    margin-bottom: 4rem;
+}
+
+.hero-section {
+    padding: 60px 0;
+    background: linear-gradient(135deg, #0369a1 0%, #0891b2 50%, #0d9488 100%);
+}
+
+.fw-600 {
+    font-weight: 600;
+}
+
+.fw-700 {
+    font-weight: 700;
+}
+
+.fw-800 {
+    font-weight: 800;
+}
+</style>
+{% endblock %}

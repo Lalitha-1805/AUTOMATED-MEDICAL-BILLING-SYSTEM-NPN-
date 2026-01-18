@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}All Claims - Medical Billing Validation{% endblock %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1 class="fw-800 text-dark mb-2" style="font-size: 2.2rem;">Claims</h1>
+        <p class="text-muted fw-500 mb-0">View and manage all validation claims</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Search and Filters Section -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mb-3 mb-lg-0">
+            <div style="position: relative;">
+                <form method="GET" action="{{ url_for('view_all_claims') }}" class="d-flex align-items-center">
+                    <i class="bi bi-search" style="position: absolute; left: 12px; color: #94a3b8; font-size: 1.1rem;"></i>
+                    <input type="text" name="search" class="form-control ps-5" placeholder="Search by claim ID, patient name, or ID..." 
+                           value="{{ search_query }}" style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.75rem;">
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+            <button id="exportBtn" class="btn btn-primary">
+                <i class="bi bi-download me-1"></i>Export
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="mb-4 d-flex flex-wrap gap-2">
+        <a href="{{ url_for('view_all_claims', status='all') }}" 
+           class="btn {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" style="border-radius: 20px;">
+            All Claims <span class="badge" style="background: rgba(0,0,0,0.1); margin-left: 6px;">{{ counts.all }}</span>
+        </a>
+        
+        <a href="{{ url_for('view_all_claims', status='Approved') }}" 
+           class="btn {% if status_filter == 'Approved' %}btn-success{% else %}btn-outline-success{% endif %}" style="border-radius: 20px;">
+            Approved <span class="badge" style="background: rgba(0,0,0,0.1); margin-left: 6px;">{{ counts.Approved }}</span>
+        </a>
+        
+        <a href="{{ url_for('view_all_claims', status='Rejected') }}" 
+           class="btn {% if status_filter == 'Rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}" style="border-radius: 20px;">
+            Rejected <span class="badge" style="background: rgba(0,0,0,0.1); margin-left: 6px;">{{ counts.Rejected }}</span>
+        </a>
+        
+        <a href="{{ url_for('view_all_claims', status='Manual Review') }}" 
+           class="btn {% if status_filter == 'Manual Review' %}btn-warning{% else %}btn-outline-warning{% endif %}" style="border-radius: 20px;">
+            Review <span class="badge" style="background: rgba(0,0,0,0.1); margin-left: 6px;">{{ counts['Manual Review'] }}</span>
+        </a>
+    </div>
+
+    <!-- Claims Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr style="font-weight: 700; color: #475569; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px;">
+                        <th style="padding: 1rem;">Claim ID</th>
+                        <th style="padding: 1rem;">Patient</th>
+                        <th style="padding: 1rem;">Diagnosis</th>
+                        <th style="padding: 1rem;">Procedure</th>
+                        <th style="padding: 1rem;">Amount</th>
+                        <th style="padding: 1rem;">Fraud Risk</th>
+                        <th style="padding: 1rem;">Status</th>
+                        <th style="padding: 1rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if claims %}
+                        {% for claim in claims %}
+                        <tr style="border-bottom: 1px solid #e2e8f0; vertical-align: middle;">
+                            <td style="padding: 1rem;">
+                                <span class="fw-700 text-dark">{{ claim.claim_id }}</span>
+                                <br>
+                                <small class="text-muted">{{ claim.created_at.strftime('%m/%d/%Y') }}</small>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="fw-600 text-dark">{{ claim.patient_id }}</span>
+                                <br>
+                                <small class="text-muted">ID: {{ claim.patient_id }}</small>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="text-dark">{{ claim.diagnosis_code }}</span>
+                                <br>
+                                <small class="text-muted" style="font-size: 0.75rem;">Pneumonia</small>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="text-dark">{{ claim.procedure_code if claim.procedure_code else 'N/A' }}</span>
+                                <br>
+                                <small class="text-muted" style="font-size: 0.75rem;">Office Visit</small>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="fw-700 text-dark">${{ "%.2f"|format(claim.treatment_cost) }}</span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% set fraud_percent = (claim.fraud_probability * 100) if claim.fraud_probability else 0 %}
+                                    <!-- Fraud Risk Indicator -->
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: 
+                                        {% if fraud_percent < 25 %}#d1fae5{% elif fraud_percent < 50 %}#fef3c7{% else %}#fee2e2{% endif %};">
+                                        <span style="font-weight: 700; color: 
+                                            {% if fraud_percent < 25 %}#059669{% elif fraud_percent < 50 %}#d97706{% else %}#dc2626{% endif %}; font-size: 0.85rem;">
+                                            {{ "%.0f"|format(fraud_percent) }}%
+                                        </span>
+                                    </div>
+                                    <!-- Progress Bar -->
+                                    <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                                        <div style="height: 100%; width: {{ [fraud_percent, 100]|min }}%; background: 
+                                            {% if fraud_percent < 25 %}linear-gradient(90deg, #10b981 0%, #059669 100%){% elif fraud_percent < 50 %}linear-gradient(90deg, #f59e0b 0%, #d97706 100%){% else %}linear-gradient(90deg, #ef4444 0%, #dc2626 100%){% endif %};"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                {% if claim.validation_status == 'Approved' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 6px;">
+                                        <i class="bi bi-check-circle me-1"></i>Approved
+                                    </span>
+                                {% elif claim.validation_status == 'Rejected' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 0.5rem 1rem; border-radius: 6px;">
+                                        <i class="bi bi-x-circle me-1"></i>Rejected
+                                    </span>
+                                {% elif claim.validation_status == 'Manual Review' %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.5rem 1rem; border-radius: 6px;">
+                                        <i class="bi bi-exclamation-circle me-1"></i>Manual Review
+                                    </span>
+                                {% else %}
+                                    <span class="badge" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; padding: 0.5rem 1rem; border-radius: 6px;">
+                                        <i class="bi bi-clock me-1"></i>Pending
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('view_claim', claim_id=claim.claim_id) }}" 
+                                       class="btn btn-sm btn-outline-primary" style="border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-secondary" style="border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="bi bi-inbox" style="font-size: 3rem; color: #cbd5e1; display: block; margin-bottom: 1rem;"></i>
+                                <p class="text-muted fw-600">No claims found</p>
+                                <small class="text-muted">Try adjusting your search or filters</small>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination Info -->
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+        <small class="text-muted">Showing {{ claims|length }} of {{ counts.all }} claims</small>
+        <div>
+            <!-- Add pagination if needed -->
+        </div>
+    </div>
+</div>
+
+<style>
+    tbody tr:hover {
+        background-color: #f8fafc !important;
+        transition: background-color 0.2s ease;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        // Get the current page content
+        const element = document.querySelector('.container');
+        
+        // Generate timestamp
+        const now = new Date();
+        const timestamp = now.getFullYear() + 
+                         String(now.getMonth() + 1).padStart(2, '0') + 
+                         String(now.getDate()).padStart(2, '0') + '_' +
+                         String(now.getHours()).padStart(2, '0') +
+                         String(now.getMinutes()).padStart(2, '0') +
+                         String(now.getSeconds()).padStart(2, '0');
+        
+        const opt = {
+            margin: 10,
+            filename: 'claims_report_' + timestamp + '.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
+        };
+        
+        // Generate PDF
+        html2pdf().set(opt).from(element).save();
+    });
+</script>
+
+{% endblock %}

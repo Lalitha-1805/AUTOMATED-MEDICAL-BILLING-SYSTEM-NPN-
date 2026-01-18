@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+
+{% block title %}Validation Result - Medical Billing Validation{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h1 class="display-5 fw-700 mb-2">
+            <i class="bi bi-check-circle me-2"></i>Validation Result
+        </h1>
+        <p class="text-muted lead">Review the detailed analysis of your medical claim</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Status Card -->
+        <div class="card mb-5 border-0 shadow-lg">
+            <div class="card-body p-5">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        {% if claim.validation_status == 'Approved' %}
+                            <div style="font-size: 4rem; color: #10b981;">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                        {% elif claim.validation_status == 'Rejected' %}
+                            <div style="font-size: 4rem; color: #ef4444;">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </div>
+                        {% else %}
+                            <div style="font-size: 4rem; color: #f59e0b;">
+                                <i class="bi bi-exclamation-circle-fill"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col">
+                        <h2 class="mb-3">
+                            {% if claim.validation_status == 'Approved' %}
+                                <span class="badge bg-success fs-5 px-3 py-2">APPROVED</span>
+                            {% elif claim.validation_status == 'Rejected' %}
+                                <span class="badge bg-danger fs-5 px-3 py-2">REJECTED</span>
+                            {% else %}
+                                <span class="badge bg-warning fs-5 px-3 py-2">MANUAL REVIEW</span>
+                            {% endif %}
+                        </h2>
+                        <p class="text-muted mb-0 fs-5">{{ claim.validation_reason }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Duplicate Detection Alert -->
+        {% if claim.validation_details %}
+            {% set validation_data = claim.get_validation_details() %}
+            {% if validation_data is mapping and validation_data.get('duplicate_check') %}
+            <div class="alert alert-danger alert-dismissible fade show mb-4 border-start border-danger border-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Duplicate Claim Detected!</strong>
+                <br>
+                This appears to be a duplicate of claim <strong>{{ validation_data.duplicate_claim_id }}</strong> 
+                submitted <strong>{{ validation_data.duplicate_days_ago }} day(s) ago</strong>.
+                <br>
+                <small class="text-muted">Matching fields: {{ ', '.join(validation_data.matching_fields) }}</small>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Claim Details -->
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Claim Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Claim ID</p>
+                        <code class="fs-6 text-primary fw-600">{{ claim.claim_id }}</code>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Patient ID</p>
+                        <code class="fs-6 fw-600">{{ claim.patient_id }}</code>
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Age</p>
+                        <p class="fs-6 fw-500 mb-0">{{ claim.age }} years old</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Gender</p>
+                        <p class="fs-6 fw-500 mb-0">{{ 'Male' if claim.gender == 'M' else 'Female' }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Diagnosis Code (ICD)</p>
+                        <p class="fs-6 fw-500 mb-0">{{ claim.diagnosis_code }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Procedure Code (CPT)</p>
+                        <p class="fs-6 fw-500 mb-0">{{ claim.procedure_code }}</p>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Treatment Cost</p>
+                        <h5 class="text-primary mb-0">${{ "%.2f"|format(claim.treatment_cost) }}</h5>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">Insurance Coverage Limit</p>
+                        <h5 class="text-success mb-0">${{ "%.2f"|format(claim.insurance_coverage_limit) }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fraud Analysis -->
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="mb-0"><i class="bi bi-shield-check me-2"></i>Fraud Risk Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-2 fw-600">Fraud Probability</p>
+                        <h3 class="fw-700 mb-3" style="color: {% if (claim.fraud_probability or 0) > 0.7 %}#ef4444{% elif (claim.fraud_probability or 0) > 0.4 %}#f59e0b{% else %}#10b981{% endif %}">
+                            {{ "%.1f"|format((claim.fraud_probability or 0) * 100) }}%
+                        </h3>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ (claim.fraud_probability or 0) * 100 }}%; background: linear-gradient(90deg, {% if (claim.fraud_probability or 0) > 0.7 %}#ef4444{% elif (claim.fraud_probability or 0) > 0.4 %}#f59e0b{% else %}#10b981{% endif %} 0%, {% if (claim.fraud_probability or 0) > 0.7 %}#dc2626{% elif (claim.fraud_probability or 0) > 0.4 %}#d97706{% else %}#059669{% endif %} 100%); border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-2 fw-600">Confidence Score</p>
+                        <h3 class="fw-700 mb-3 text-primary">{{ "%.1f"|format((claim.confidence_score or 0) * 100) }}%</h3>
+                        <p class="small text-muted mb-0"><i class="bi bi-info-circle me-1"></i>ML ensemble confidence in this prediction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validation Rules -->
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-check me-2"></i>Validation Rules Applied</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% set validation_data = claim.get_validation_details() %}
+                    {% if validation_data is iterable and validation_data is not string and validation_data is not mapping %}
+                        {% for detail in validation_data %}
+                        <div class="list-group-item border-0 border-bottom py-3">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 fw-600">{{ detail.rule }}</h6>
+                                    <p class="mb-0 small text-muted">{{ detail.reason }}</p>
+                                </div>
+                                {% if detail.passed %}
+                                    <span class="badge bg-success"><i class="bi bi-check me-1"></i>Passed</span>
+                                {% else %}
+                                    <span class="badge bg-danger"><i class="bi bi-x me-1"></i>Failed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% elif validation_data is mapping and validation_data.get('duplicate_check') %}
+                        <div class="list-group-item">
+                            <p class="text-muted mb-0">Duplicate claim detected - see alert above for details</p>
+                        </div>
+                    {% else %}
+                        <div class="list-group-item">
+                            <p class="text-muted mb-0">No validation details available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Quick Summary -->
+        <div class="card mb-4 border-0" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);">
+            <div class="card-body">
+                <h5 class="card-title fw-700 mb-4">Summary</h5>
+                <div class="row small">
+                    <div class="col-12 mb-3 pb-3 border-bottom">
+                        <p class="text-muted mb-1">Cost to Coverage Ratio</p>
+                        <h6 class="fw-700 mb-0">{{ "%.2f"|format(claim.treatment_cost / claim.insurance_coverage_limit) }}x</h6>
+                    </div>
+                    
+                    <div class="col-12 mb-3 pb-3 border-bottom">
+                        <p class="text-muted mb-1">Exceeds Coverage Limit</p>
+                        <div>
+                            {% if claim.treatment_cost > claim.insurance_coverage_limit %}
+                                <span class="badge bg-danger">Yes - Over by ${{ "%.2f"|format(claim.treatment_cost - claim.insurance_coverage_limit) }}</span>
+                            {% else %}
+                                <span class="badge bg-success">No - Within limit</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 mb-3 pb-3 border-bottom">
+                        <p class="text-muted mb-1">Hospital ID</p>
+                        <code class="fw-600">{{ claim.hospital_id }}</code>
+                    </div>
+                    
+                    <div class="col-12">
+                        <p class="text-muted mb-1">Submitted</p>
+                        <p class="small mb-0">{{ claim.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ML Predictions -->
+        {% set ml_preds = claim.get_ml_predictions() %}
+        {% if ml_preds %}
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="mb-0"><i class="bi bi-cpu me-2"></i>ML Model Scores</h5>
+            </div>
+            <div class="card-body small">
+                <div class="mb-3">
+                    <p class="text-muted mb-2 fw-600">Logistic Regression</p>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ ml_preds.get('lr_prob', 0) * 100 }}%"></div>
+                    </div>
+                    <p class="text-muted mt-1 mb-0">{{ "%.1f"|format(ml_preds.get('lr_prob', 0) * 100) }}%</p>
+                </div>
+                <div class="mb-3">
+                    <p class="text-muted mb-2 fw-600">Random Forest</p>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ ml_preds.get('rf_prob', 0) * 100 }}%"></div>
+                    </div>
+                    <p class="text-muted mt-1 mb-0">{{ "%.1f"|format(ml_preds.get('rf_prob', 0) * 100) }}%</p>
+                </div>
+                <div>
+                    <p class="text-muted mb-2 fw-600">Anomaly Detection</p>
+                    <p class="mb-0">
+                        {% if ml_preds.get('iso_pred', 0) %}
+                            <span class="badge bg-danger">Anomaly Detected</span>
+                        {% else %}
+                            <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/dashboard" class="btn btn-primary fw-600">
+                        <i class="bi bi-speedometer2 me-2"></i>Back to Dashboard
+                    </a>
+                    <a href="/bill-validation" class="btn btn-light fw-600">
+                        <i class="bi bi-plus-circle me-2"></i>Validate Another
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

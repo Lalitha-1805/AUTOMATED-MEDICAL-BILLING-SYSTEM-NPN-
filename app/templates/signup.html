@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Medical Billing Validation{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 600px;">
+    <div class="col-md-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                <div class="text-center mb-5">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto; margin-bottom: 1.5rem;">
+                        <i class="bi bi-person-plus" style="font-size: 2.5rem; color: white;"></i>
+                    </div>
+                    <h2 class="fw-700 mb-2">Create Account</h2>
+                    <p class="text-muted">Join us to start validating medical claims</p>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border: 1px solid #e5e7eb; background: var(--light);">
+                                <i class="bi bi-person" style="color: #6b7280;"></i>
+                            </span>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border: 1px solid #e5e7eb; background: var(--light);">
+                                <i class="bi bi-envelope" style="color: #6b7280;"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border: 1px solid #e5e7eb; background: var(--light);">
+                                <i class="bi bi-lock" style="color: #6b7280;"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="role" class="form-label">Account Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="" disabled selected>Select your role</option>
+                            <option value="hospital_staff">🏥 Hospital Staff</option>
+                            <option value="insurance_admin">🛡️ Insurance Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="hospital_id" class="form-label">Hospital ID <span class="text-muted">(Optional)</span></label>
+                        <input type="text" class="form-control" id="hospital_id" name="hospital_id" placeholder="e.g., H0001">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-600 mb-3">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <p class="text-center text-muted mb-0">
+                    Already have an account? 
+                    <a href="/login" class="fw-600" style="color: #2563eb; text-decoration: none;">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

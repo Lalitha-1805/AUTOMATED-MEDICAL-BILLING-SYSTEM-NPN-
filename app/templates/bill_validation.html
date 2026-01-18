@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block title %}Bill Validation - Medical Billing Validation{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div>
+            <h1 class="display-5 fw-700 mb-2">
+                <i class="bi bi-file-earmark-check me-2"></i>Validate Medical Bill
+            </h1>
+            <p class="text-muted lead">Upload PDF bill or enter claim details manually for AI-powered validation and fraud detection</p>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4" id="validationTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-600" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-content" 
+                type="button" role="tab" aria-controls="upload-content" aria-selected="true">
+            <i class="bi bi-cloud-upload me-2"></i>Upload PDF Bill
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-600" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-content" 
+                type="button" role="tab" aria-controls="manual-content" aria-selected="false">
+            <i class="bi bi-pencil-square me-2"></i>Enter Manually
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="validationTabContent">
+    <!-- PDF Upload Tab -->
+    <div class="tab-pane fade show active" id="upload-content" role="tabpanel" aria-labelledby="upload-tab">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h5 class="card-title fw-700 mb-4">
+                            <i class="bi bi-file-pdf me-2"></i>Upload Medical Bill (PDF)
+                        </h5>
+                        
+                        <!-- Upload Area -->
+                        <div class="upload-area border-2 border-dashed rounded-3 p-5 text-center mb-4" 
+                             id="uploadArea" style="cursor: pointer;">
+                            <i class="bi bi-cloud-upload mb-3" style="font-size: 3.5rem; color: #2563eb; display: block;"></i>
+                            <p class="mt-2 mb-1 fw-600">
+                                Click to upload or drag and drop
+                            </p>
+                            <p class="text-muted small">PDF files only (maximum 16MB)</p>
+                            <input type="file" id="billFileInput" accept=".pdf" style="display: none;">
+                        </div>
+
+                        <!-- Loading Spinner -->
+                        <div id="uploadLoading" style="display: none;" class="text-center mb-4 py-4">
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted fw-500"><i class="bi bi-hourglass-split me-2"></i>Extracting information from PDF...</p>
+                        </div>
+
+                        <!-- Upload Status Message -->
+                        <div id="uploadStatus"></div>
+
+                        <!-- Extracted Fields Form -->
+                        <form method="POST" id="extractedForm" style="display: none;">
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong>PDF Extraction Successful!</strong> Please review and correct any auto-extracted values below.
+                            </div>
+                            <h6 class="mt-4 mb-4 fw-700">
+                                <i class="bi bi-clipboard-check me-2" style="color: #10b981;"></i>Extracted Information
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_patient_id" class="form-label">Patient ID *</label>
+                                    <input type="text" class="form-control" id="ex_patient_id" name="patient_id" 
+                                           placeholder="Auto-extracted from PDF" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_age" class="form-label">Age *</label>
+                                    <input type="number" class="form-control" id="ex_age" name="age" 
+                                           min="18" max="120" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_gender" class="form-label">Gender *</label>
+                                    <select class="form-control" id="ex_gender" name="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_hospital_id" class="form-label">Hospital ID *</label>
+                                    <input type="text" class="form-control" id="ex_hospital_id" name="hospital_id" 
+                                           placeholder="e.g., H0001" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_diagnosis" class="form-label">Diagnosis Code (ICD) *</label>
+                                    <input type="text" class="form-control" id="ex_diagnosis" name="diagnosis" 
+                                           placeholder="e.g., E10 or 110" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_procedure" class="form-label">Procedure Code (CPT) *</label>
+                                    <input type="text" class="form-control" id="ex_procedure" name="procedure" 
+                                           placeholder="e.g., 99213" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_cost" class="form-label">Treatment Cost ($) *</label>
+                                    <input type="number" class="form-control" id="ex_cost" name="cost" 
+                                           min="0" step="0.01" placeholder="0.00" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="ex_coverage_limit" class="form-label">Insurance Coverage Limit ($) *</label>
+                                    <input type="number" class="form-control" id="ex_coverage_limit" name="coverage_limit" 
+                                           min="0" step="0.01" placeholder="0.00" required>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info border-start border-info border-4" style="background: rgba(6, 182, 212, 0.05);">
+                                <i class="bi bi-info-circle me-2"></i> 
+                                <small><strong>Note:</strong> Fields marked with * are required. Please review and correct any auto-extracted values as needed.</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg fw-600">
+                                    <i class="bi bi-check-circle me-2"></i>Validate Claim
+                                </button>
+                                <button type="button" class="btn btn-light fw-600" onclick="resetUpload()">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>Upload Another
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);">
+                    <div class="card-body">
+                        <h5 class="card-title fw-700 mb-3">
+                            <i class="bi bi-lightbulb me-2" style="color: #f59e0b;"></i>PDF Upload Tips
+                        </h5>
+                        <ul class="small list-unstyled">
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1" style="font-size: 0.8rem;"></i>
+                                <div>
+                                    <strong>Clear documents:</strong> 
+                                    <p class="text-muted small mb-0">Scanned or digital PDFs work best</p>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1" style="font-size: 0.8rem;"></i>
+                                <div>
+                                    <strong>Standard format:</strong> 
+                                    <p class="text-muted small mb-0">Medical bills in standard format recognized better</p>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1" style="font-size: 0.8rem;"></i>
+                                <div>
+                                    <strong>Review extracted:</strong> 
+                                    <p class="text-muted small mb-0">Always review auto-extracted data for accuracy</p>
+                                </div>
+                            </li>
+                            <li class="mb-3 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1" style="font-size: 0.8rem;"></i>
+                                <div>
+                                    <strong>Correct before submit:</strong> 
+                                    <p class="text-muted small mb-0">Ensure all fields are correct before validation</p>
+                                </div>
+                            </li>
+                            <li class="d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1" style="font-size: 0.8rem;"></i>
+                                <div>
+                                    <strong>Max 16MB:</strong> 
+                                    <p class="text-muted small mb-0">File size limit is 16MB</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Entry Tab -->
+    <div class="tab-pane fade" id="manual-content" role="tabpanel" aria-labelledby="manual-tab">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body p-5">
+                        <h5 class="card-title fw-700 mb-4">
+                            <i class="bi bi-pencil-square me-2"></i>Enter Claim Details Manually
+                        </h5>
+                        
+                        <form method="POST" id="validationForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="patient_id" class="form-label">Patient ID *</label>
+                                    <input type="text" class="form-control" id="patient_id" name="patient_id" 
+                                           placeholder="e.g., P12345" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="age" class="form-label">Age *</label>
+                                    <input type="number" class="form-control" id="age" name="age" 
+                                           min="18" max="120" value="50" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="gender" class="form-label">Gender *</label>
+                                    <select class="form-select" id="gender" name="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="hospital_id" class="form-label">Hospital ID *</label>
+                                    <input type="text" class="form-control" id="hospital_id" name="hospital_id" 
+                                           placeholder="e.g., H0001" value="H0001" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="diagnosis" class="form-label">Diagnosis Code (ICD) *</label>
+                                    <select class="form-select" id="diagnosis" name="diagnosis" required>
+                                        <option value="">Select Diagnosis</option>
+                                        <option value="E10">E10 - Type 1 Diabetes</option>
+                                        <option value="E11">E11 - Type 2 Diabetes</option>
+                                        <option value="I10">I10 - Essential Hypertension</option>
+                                        <option value="J44">J44 - Chronic Obstructive Pulmonary Disease</option>
+                                        <option value="F32">F32 - Major Depressive Disorder</option>
+                                        <option value="M79">M79 - Myalgia</option>
+                                        <option value="E78">E78 - Disorders of Lipoprotein</option>
+                                        <option value="K21">K21 - Gastro-esophageal Reflux</option>
+                                        <option value="N18">N18 - Chronic Kidney Disease</option>
+                                        <option value="R07">R07 - Chest Pain</option>
+                                        <option value="J06">J06 - Acute Upper Respiratory</option>
+                                        <option value="N39">N39 - Urinary Tract Infection</option>
+                                        <option value="M99">M99 - Chiropractic Subluxation</option>
+                                        <option value="E66">E66 - Obesity</option>
+                                        <option value="F41">F41 - Anxiety Disorders</option>
+                                        <option value="Z79">Z79 - Long-term Drug Therapy</option>
+                                        <option value="R06">R06 - Abnormalities of Breathing</option>
+                                        <option value="I39">I39 - Heart Disease</option>
+                                        <option value="J20">J20 - Acute Bronchitis</option>
+                                        <option value="K59">K59 - Functional Diarrhea</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="procedure" class="form-label">Procedure Code (CPT) *</label>
+                                    <select class="form-select" id="procedure" name="procedure" required>
+                                        <option value="">Select Procedure</option>
+                                        <option value="99213">99213 - Office Visit, Established</option>
+                                        <option value="99214">99214 - Office Visit, Moderate</option>
+                                        <option value="99215">99215 - Office Visit, High Complexity</option>
+                                        <option value="92004">92004 - Comprehensive Eye Exam</option>
+                                        <option value="93000">93000 - Electrocardiogram</option>
+                                        <option value="94002">94002 - Spirometry</option>
+                                        <option value="90834">90834 - Psychotherapy 45 min</option>
+                                        <option value="90837">90837 - Psychotherapy 60 min</option>
+                                        <option value="20610">20610 - Joint Injection</option>
+                                        <option value="97110">97110 - Physical Therapy</option>
+                                        <option value="43235">43235 - Upper Endoscopy</option>
+                                        <option value="36145">36145 - Venipuncture</option>
+                                        <option value="81000">81000 - Urinalysis</option>
+                                        <option value="69210">69210 - Cerumen Removal</option>
+                                        <option value="74150">74150 - Abdominal Ultrasound</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="cost" class="form-label">Treatment Cost ($) *</label>
+                                    <input type="number" class="form-control" id="cost" name="cost" 
+                                           min="0" step="0.01" placeholder="0.00" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="coverage_limit" class="form-label">Insurance Coverage Limit ($) *</label>
+                                    <input type="number" class="form-control" id="coverage_limit" name="coverage_limit" 
+                                           min="0" step="0.01" value="5000.00" required>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg fw-600">
+                                    <i class="bi bi-check-circle me-2"></i>Validate Claim
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);">
+                    <div class="card-body">
+                        <h5 class="card-title fw-700 mb-4">
+                            <i class="bi bi-shield-check me-2" style="color: #10b981;"></i>Validation Process
+                        </h5>
+                        <ol class="small">
+                            <li class="mb-2"><strong>Enter claim details</strong></li>
+                            <li class="mb-2"><strong>AI models</strong> analyze the claim</li>
+                            <li class="mb-2"><strong>Rule engine</strong> validation checks</li>
+                            <li class="mb-2"><strong>Calculate</strong> fraud probability</li>
+                            <li><strong>Determine</strong> final status</li>
+                        </ol>
+                        <hr class="my-3">
+                        <h6 class="fw-700 mb-3">Validation Includes:</h6>
+                        <ul class="small list-unstyled">
+                            <li class="mb-2 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
+                                <span>Coverage limit checks</span>
+                            </li>
+                            <li class="mb-2 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
+                                <span>Diagnosis-procedure validation</span>
+                            </li>
+                            <li class="mb-2 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
+                                <span>Cost range verification</span>
+                            </li>
+                            <li class="mb-2 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
+                                <span>Age-specific rules</span>
+                            </li>
+                            <li class="mb-2 d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
+                                <span>Duplicate detection</span>
+                            </li>
+                            <li class="d-flex">
+                                <i class="bi bi-check-circle-fill text-success me-2" style="font-size: 0.8rem;"></i>
+                                <span>ML fraud scoring</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#validationForm label, #extractedForm label {
+    font-weight: 600;
+}
+
+.fw-600 {
+    font-weight: 600;
+}
+
+.fw-700 {
+    font-weight: 700;
+}
+</style>
+{% endblock %}

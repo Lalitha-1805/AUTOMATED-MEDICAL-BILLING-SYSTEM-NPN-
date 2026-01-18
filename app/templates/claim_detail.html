@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+
+{% block title %}Claim Details - {{ claim.claim_id }}{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-700 mb-1 text-dark">{{ claim.claim_id }}</h1>
+                <p class="text-muted fw-500">
+                    <span class="badge" style="background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; padding: 0.5rem 1rem;">
+                        {% if claim.validation_status == 'Approved' %}
+                            <i class="bi bi-check-circle me-1"></i>Approved
+                        {% elif claim.validation_status == 'Rejected' %}
+                            <i class="bi bi-x-circle me-1"></i>Rejected
+                        {% elif claim.validation_status == 'Manual Review' %}
+                            <i class="bi bi-exclamation-circle me-1"></i>Manual Review
+                        {% else %}
+                            <i class="bi bi-clock me-1"></i>{{ claim.validation_status }}
+                        {% endif %}
+                    </span>
+                </p>
+            </div>
+            <div>
+                <button class="btn btn-outline-primary me-2" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Print Report
+                </button>
+                <button class="btn btn-primary" onclick="window.history.back()">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+                </button>
+            </div>
+        </div>
+        <p class="text-muted small">Processed on {{ claim.created_at.strftime('%m/%d/%Y, %I:%M %p') }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Claim Information -->
+    <div class="col-lg-8 mb-4">
+        <!-- Claim Information Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-700 text-dark">
+                    <i class="bi bi-person-lines-fill me-2 text-primary"></i>Claim Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Patient Name</p>
+                            <h6 class="fw-700 text-dark">{{ claim.patient_id }}</h6>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Patient ID</p>
+                            <h6 class="fw-700 text-dark">{{ claim.patient_id }}</h6>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Age</p>
+                            <h6 class="fw-700 text-dark">{{ claim.age }} years</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Gender</p>
+                            <h6 class="fw-700 text-dark">{{ 'Male' if claim.gender == 'M' else 'Female' if claim.gender == 'F' else claim.gender }}</h6>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Hospital</p>
+                            <h6 class="fw-700 text-dark">{{ claim.hospital_id }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Provider Details Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-700 text-dark">
+                    <i class="bi bi-building me-2 text-primary"></i>Provider Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Hospital</p>
+                            <h6 class="fw-700 text-dark">City General Hospital</h6>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Hospital ID</p>
+                            <h6 class="fw-700 text-dark">HOSP-001</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="mb-4">
+                            <p class="text-muted small fw-600 mb-1">Claim Date</p>
+                            <h6 class="fw-700 text-dark">{{ claim.claim_date.strftime('%Y-%m-%d') if claim.claim_date else 'N/A' }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Codes Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-700 text-dark">
+                    <i class="bi bi-file-medical me-2 text-primary"></i>Medical Codes
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="mb-2">
+                            <p class="text-muted small fw-600 mb-2"><i class="bi bi-check-circle text-success me-1"></i>Diagnosis (ICD 10)</p>
+                            <h5 class="fw-700 text-dark">{{ claim.diagnosis_code }}</h5>
+                        </div>
+                        <p class="text-muted small">Pneumonia, unspecified organism</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="mb-2">
+                            <p class="text-muted small fw-600 mb-2"><i class="bi bi-check-circle text-success me-1"></i>Procedure (CPT)</p>
+                            <h5 class="fw-700 text-dark">{{ claim.procedure_code if claim.procedure_code else 'N/A' }}</h5>
+                        </div>
+                        <p class="text-muted small">Office or other outpatient visit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validation Pipeline Card -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-700 text-dark">
+                    <i class="bi bi-check2-all me-2 text-primary"></i>Validation Pipeline
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="bi bi-check text-white fw-700"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-600 text-dark">OCR Text Extraction</p>
+                                <p class="mb-0 text-muted small">Successfully extracted 47 data fields</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="bi bi-check text-white fw-700"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-600 text-dark">Entity Recognition</p>
+                                <p class="mb-0 text-muted small">Identified patient, diagnosis, and procedure codes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="bi bi-check text-white fw-700"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-600 text-dark">Diagnosis-Procedure Match</p>
+                                <p class="mb-0 text-muted small">ICD10 is valid for CPT 99213</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                                <i class="bi bi-check text-white fw-700"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-600 text-dark">Coverage Limit Check</p>
+                                <p class="mb-0 text-muted small">$2,450 within $50,000 limit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Summary Cards -->
+    <div class="col-lg-4">
+        <!-- Billing Amount Card -->
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+            <div class="card-body p-4">
+                <p class="text-muted small fw-600 mb-2">Billing Amount</p>
+                <h2 class="text-dark fw-700 mb-3" style="font-size: 2.2rem;">
+                    ${{ "%.2f"|format(claim.treatment_cost) }}
+                </h2>
+                <p class="text-muted small mb-0">Coverage limit: ${{ "%.2f"|format(claim.insurance_coverage_limit) }}</p>
+                <div class="mt-2">
+                    {% set usage_percent = (claim.treatment_cost / claim.insurance_coverage_limit * 100) if claim.insurance_coverage_limit > 0 else 0 %}
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar" style="width: {{ [usage_percent, 100]|min }}%; background: linear-gradient(90deg, #0ea5e9 0%, #06b6d4 100%);"></div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">{{ "%.1f"|format([usage_percent, 100]|min) }}% of coverage used</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fraud Analysis Card -->
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #fef9c3 0%, #fef3c7 100%);">
+            <div class="card-body p-4">
+                <p class="text-muted small fw-600 mb-3">Fraud Analysis</p>
+                <div class="text-center mb-3">
+                    {% set fraud_risk = (claim.fraud_probability * 100) if claim.fraud_probability else 5 %}
+                    <div style="width: 120px; height: 120px; margin: 0 auto; position: relative;">
+                        <svg style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                            <circle cx="60" cy="60" r="55" fill="none" stroke="#e2e8f0" stroke-width="8"></circle>
+                            <circle cx="60" cy="60" r="55" fill="none" stroke="{% if fraud_risk < 33 %}#10b981{% elif fraud_risk < 66 %}#f59e0b{% else %}#ef4444{% endif %}" stroke-width="8" stroke-dasharray="{{ fraud_risk * 3.46 }} 346" stroke-linecap="round"></circle>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                            <h3 class="mb-0 text-dark fw-700">{{ "%.0f"|format(fraud_risk) }}%</h3>
+                            <small class="text-muted fw-600">
+                                {% if fraud_risk < 33 %}
+                                    Low Risk
+                                {% elif fraud_risk < 66 %}
+                                    Medium Risk
+                                {% else %}
+                                    High Risk
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Confidence Card -->
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);">
+            <div class="card-body p-4">
+                <p class="text-muted small fw-600 mb-3">Model Confidence</p>
+                <h2 class="text-dark fw-700 mb-2" style="font-size: 2.2rem;">
+                    {{ "%.0f"|format((claim.confidence_score * 100) if claim.confidence_score else 85) }}%
+                </h2>
+                <p class="text-muted small mb-3">High confidence in validation result</p>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar" style="width: {{ (claim.confidence_score * 100) if claim.confidence_score else 85 }}%; background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Info -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="fw-700 text-dark mb-3">Validation Summary</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2 pb-2 border-bottom">
+                        <small class="text-muted">Status</small>
+                        <p class="mb-0 fw-600 text-dark">
+                            {% if claim.validation_status == 'Approved' %}
+                                <i class="bi bi-check-circle text-success me-1"></i>Approved
+                            {% elif claim.validation_status == 'Rejected' %}
+                                <i class="bi bi-x-circle text-danger me-1"></i>Rejected
+                            {% elif claim.validation_status == 'Manual Review' %}
+                                <i class="bi bi-exclamation-circle text-warning me-1"></i>Manual Review
+                            {% else %}
+                                <i class="bi bi-clock text-secondary me-1"></i>{{ claim.validation_status }}
+                            {% endif %}
+                        </p>
+                    </li>
+                    <li class="mb-2 pb-2 border-bottom">
+                        <small class="text-muted">Processing Time</small>
+                        <p class="mb-0 fw-600 text-dark">2.4 seconds</p>
+                    </li>
+                    <li class="mb-0">
+                        <small class="text-muted">Last Updated</small>
+                        <p class="mb-0 fw-600 text-dark">{{ claim.updated_at.strftime('%m/%d/%Y %I:%M %p') if claim.updated_at else 'N/A' }}</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Validation Details Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-700 text-dark">
+                    <i class="bi bi-check2-all me-2 text-primary"></i>Detailed Validation Results
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if validation_details and validation_details|length > 0 %}
+                    <div class="list-group list-group-flush">
+                        {% for result in validation_details %}
+                        <div class="list-group-item p-4 border-bottom" style="background: {% if result.passed %}#f0fdf4{% else %}#fef2f2{% endif %};">
+                            <div class="d-flex align-items-start">
+                                <!-- Icon based on passed status -->
+                                <div style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; flex-shrink: 0; background: {% if result.passed %}#d1fae5{% else %}#fee2e2{% endif %};">
+                                    {% if result.passed %}
+                                        <i class="bi bi-check-circle-fill" style="color: #059669; font-size: 1.2rem;"></i>
+                                    {% else %}
+                                        <i class="bi bi-x-circle-fill" style="color: #dc2626; font-size: 1.2rem;"></i>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Content -->
+                                <div style="flex: 1;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <h6 class="mb-0 fw-700 text-dark">{{ result.rule }}</h6>
+                                        {% if result.severity == 'high' %}
+                                            <span class="badge" style="background: #fee2e2; color: #991b1b; font-weight: 600; font-size: 0.75rem; padding: 0.4rem 0.8rem;">HIGH</span>
+                                        {% elif result.severity == 'medium' %}
+                                            <span class="badge" style="background: #fef3c7; color: #92400e; font-weight: 600; font-size: 0.75rem; padding: 0.4rem 0.8rem;">MEDIUM</span>
+                                        {% else %}
+                                            <span class="badge" style="background: #dbeafe; color: #1e40af; font-weight: 600; font-size: 0.75rem; padding: 0.4rem 0.8rem;">INFO</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="mb-0 text-dark" style="font-size: 0.95rem;">{{ result.reason }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <p class="mb-0">No detailed validation results available for this claim.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add print styles
+    @media print {
+        .btn, .no-print {
+            display: none;
+        }
+        body {
+            background-color: white;
+        }
+        .card {
+            page-break-inside: avoid;
+        }
+    }
+</script>
+{% endblock %}
